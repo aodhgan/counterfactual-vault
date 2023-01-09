@@ -43,12 +43,12 @@ contract CounterfactualWallet {
     event TransferredEther(address indexed to, uint256 amount);
 
     modifier onlyOwner() {
-        require(msg.sender == _owner, "LootBox/only-owner");
+        require(msg.sender == _owner, "CounterfactualWallet/only-owner");
         _;
     }
 
     function initialize() external {
-        require(_owner == address(0), "LootBox/already-init");
+        require(_owner == address(0), "CounterfactualWallet/already-init");
         _owner = msg.sender;
     }
 
@@ -71,12 +71,12 @@ contract CounterfactualWallet {
         return response;
     }
 
-    function plunder(
+    function sweep(
         IERC20[] memory erc20,
         WithdrawERC721[] memory erc721,
         address payable to
     ) external onlyOwner {
-        require(to != address(0), "LootBox/non-zero-to");
+        require(to != address(0), "CounterfactualWallet/non-zero-to");
         _withdrawERC20(erc20, to);
         _withdrawERC721(erc721, to);
         _transferEther(to, address(this).balance);

@@ -11,7 +11,7 @@ import {CounterfactualWalletController} from '../typechain-types'
 import {deployContract, signer} from './framework/contracts'
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
 import {ERC20PresetMinterPauser} from '../typechain-types/@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser'
-
+import {TransactionReceipt} from '@ethersproject/abstract-provider'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
@@ -34,37 +34,26 @@ describe('LootBoxController', () => {
         console.log('deployed erc20 at ', exampleErc20.address)
     })
 
-    describe('plundering', () => {
-        it('can plunder', async () => {
+    describe('sweeping', () => {
+        it('can sweep', async () => {
             const calculatedAddress =
-                await counterfactualWalletController.computeAddress(
-                    admin.address,
-                    1
-                )
-            console.log({calculatedAddress})
+                await counterfactualWalletController.computeAddress(1)
 
             const calculatedAddress2 =
-                await counterfactualWalletController.computeAddress(
-                    admin.address,
-                    2
-                )
-            console.log({calculatedAddress2})
-
+                await counterfactualWalletController.computeAddress(2)
             // mint tokens to calculated address2
             const mintAmount = 7000
             await exampleErc20.mint(calculatedAddress2, mintAmount)
-            console.log(
-                'balance of calculatedAddress2 ',
-                await exampleErc20.balanceOf(calculatedAddress2)
-            )
 
-            // plunder tokens from calculatedAddress2 to observer
-            await counterfactualWalletController.sweep(
-                admin.address,
+            // sweep tokens from calculatedAddress2 to observer
+            const result = await counterfactualWalletController.sweep(
                 2,
+                admin.address,
                 [exampleErc20.address],
                 []
             )
+            const receipt = await result.wait()
+            console.log('gas used', receipt.gasUsed.toString())
             console.log(
                 'balance of calculatedAddress2 now ',
                 await exampleErc20.balanceOf(calculatedAddress2)
@@ -74,36 +63,33 @@ describe('LootBoxController', () => {
                 mintAmount
             )
         })
+        it('benchmark standard erc20 transfer', async () => {
+            const mintAmount = 100
+            await exampleErc20.mint(admin.address, mintAmount)
+            const result = await exampleErc20.transfer(
+                observer.address,
+                mintAmount
+            )
+            const receipt = await result.wait()
+            console.log('gas used', receipt.gasUsed.toString())
+        })
     })
 
-    // Inner describes use the name or idea for the function they're unit testing
-    describe('random cannot plunder', () => {
-        it('cannot plunder', async () => {
+    describe('random cannot sweep', () => {
+        it('cannot sweep', async () => {
             const calculatedAddress2 =
-                await counterfactualWalletController.computeAddress(
-                    admin.address,
-                    2
-                )
+                await counterfactualWalletController.computeAddress(2)
             console.log({calculatedAddress2})
 
             // mint tokens to calculated address2
             const mintAmount = 7000
             await exampleErc20.mint(calculatedAddress2, mintAmount)
-            console.log(
-                'balance of calculatedAddress2 ',
-                await exampleErc20.balanceOf(calculatedAddress2)
-            )
-
             // plunder tokens from calculatedAddress2 to observer
             await expect(
                 counterfactualWalletController
                     .connect(observer)
-                    .sweep(admin.address, 2, [exampleErc20.address], [])
+                    .sweep(2, observer.address, [exampleErc20.address], [])
             ).to.be.revertedWith('Ownable: caller is not the owner')
-            console.log(
-                'balance of calculatedAddress2 now ',
-                await exampleErc20.balanceOf(calculatedAddress2)
-            )
             expect(await exampleErc20.balanceOf(calculatedAddress2)).to.equal(
                 mintAmount
             )
