@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 /// @title
-/// @notice A LootBox allows anyone to withdraw all tokens or execute calls on behalf of the contract.
+/// @notice A CounterfactualWallet allows anyone to withdraw all tokens or execute calls on behalf of the contract.
 /// @dev This contract is intended to be counterfactually instantiated via CREATE2.
-contract LootBox {
+contract CounterfactualWallet {
     /// @notice A structure to define arbitrary contract calls
     struct Call {
         address to;
@@ -31,26 +31,23 @@ contract LootBox {
         bytes data;
     }
 
+    address private _owner;
+
     /// @notice Emitted when an ERC20 token is withdrawn
     event WithdrewERC20(address indexed token, uint256 amount);
 
     /// @notice Emitted when an ERC721 token is withdrawn
     event WithdrewERC721(address indexed token, uint256[] tokenIds);
 
-    /// @notice Emitted when an ERC1155 token is withdrawn
-    event WithdrewERC1155(
-        address indexed token,
-        uint256[] ids,
-        uint256[] amounts,
-        bytes data
-    );
-
     /// @notice Emitted when the contract transfer ether
     event TransferredEther(address indexed to, uint256 amount);
 
-    address private _owner;
+    modifier onlyOwner() {
+        require(msg.sender == _owner, "LootBox/only-owner");
+        _;
+    }
 
-    function initialize() public {
+    function initialize() external {
         require(_owner == address(0), "LootBox/already-init");
         _owner = msg.sender;
     }
@@ -154,34 +151,5 @@ contract LootBox {
                 withdrawals[i].tokenIds
             );
         }
-    }
-
-    /// @notice Transfers ERC1155 tokens to an account
-    /// @param withdrawals An array of WithdrawERC1155 structs that each include the ERC1155 to transfer and it's corresponding token ids and amounts.
-    /// @param to The recipient of the transfers
-    function _withdrawERC1155(WithdrawERC1155[] memory withdrawals, address to)
-        internal
-    {
-        for (uint256 i = 0; i < withdrawals.length; i++) {
-            withdrawals[i].token.safeBatchTransferFrom(
-                address(this),
-                to,
-                withdrawals[i].ids,
-                withdrawals[i].amounts,
-                withdrawals[i].data
-            );
-
-            emit WithdrewERC1155(
-                address(withdrawals[i].token),
-                withdrawals[i].ids,
-                withdrawals[i].amounts,
-                withdrawals[i].data
-            );
-        }
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == _owner, "LootBox/only-owner");
-        _;
     }
 }

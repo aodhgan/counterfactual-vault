@@ -1,6 +1,10 @@
-# Solidity Project Template
+# Counterfactual Wallets
 
-Providing a project with a template for the files, folder structure, dependencies, scripting, configuration (local & remote) and development standards used in a Windranger Soldity project with TypeScript tests.
+Contract suite to faciliate counterfactual wallet creation and management.
+
+Inspired by PoolTogether's Lootbox (https://github.com/pooltogether/loot-box).
+
+Built using Windrangers typescript hardhat template.
 
 ---
 
