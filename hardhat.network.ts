@@ -2,7 +2,7 @@ import { HardhatUserConfig } from 'hardhat/config';
 
 const alchemyUrl = process.env.ALCHEMY_URL;
 const infuraApiKey = ""
-const mnemonic = '';
+const mnemonic = "";
 
 
 const networks: HardhatUserConfig['networks'] = {
@@ -64,31 +64,26 @@ if (mnemonic) {
         },
     };
 }
+networks.kovan = {
+    url: `https://kovan.infura.io/v3/${infuraApiKey}`,
+    accounts: {
+        mnemonic,
+    },
+};
 
-if (infuraApiKey && mnemonic) {
-    console.log("here")
-    networks.kovan = {
-        url: `https://kovan.infura.io/v3/${infuraApiKey}`,
-        accounts: {
-            mnemonic,
-        },
-    };
+networks.ropsten = {
+    url: `https://ropsten.infura.io/v3/${infuraApiKey}`,
+    accounts: {
+        mnemonic,
+    },
+};
 
-    networks.ropsten = {
-        url: `https://ropsten.infura.io/v3/${infuraApiKey}`,
-        accounts: {
-            mnemonic,
-        },
-    };
+networks.goerli = {
+    url: `https://goerli.infura.io/v3/${infuraApiKey}`,
+    accounts: {
+        mnemonic,
+    },
+};
 
-    networks.goerli = {
-        url: `https://goerli.infura.io/v3/${infuraApiKey}`,
-        accounts: {
-            mnemonic,
-        },
-    };
-} else {
-    console.warn('No infura or hdwallet available for testnets');
-}
 
 export default networks;

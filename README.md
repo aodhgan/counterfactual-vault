@@ -19,6 +19,15 @@ For example:
 1. `0xB` sends 100 USDC to `0xA1`
 1. `0xA` _sweeps_ `0xA1` to a destination address `0xZ` by calling `sweep(walletId = 1, destination = 0xZ, [erc20 = usdc address, amount = 100], [])`
 
+### Goerli Testnet Example:
+1. Mintable ERC20 token @ https://goerli.etherscan.io/token/0x66ee871f085b93eb37f95d135774eff4d402e694#writeContract
+1. Deployed CFWController @ https://goerli.etherscan.io/address/0x19B1054C5A5a7BcF4f64B325727cb39C8d946007#code
+1. Calculate associated address for walletId = 1  = https://goerli.etherscan.io/address/0x0786fE42865Cbde3db1b1990852e75ADDda33ed5
+1. Send 10 mintable ERC20 token above to this address https://goerli.etherscan.io/tx/0x64001e31b38cd4497008056fdb77eab4bd6efd328b0aea6920f3c12494f78068
+1. Sweep these tokens to another random address 0xB3925cC4446635D2E3AdfB050cDa950d720167a0 https://goerli.etherscan.io/tx/0x57826ccff214e1e8edcaf31457f5a579b03c1bbad5ccc2727b2d3b751a5d662e
+ 
+
+
 ### Under the hood
 
 A minimal proxy factory is used to create (CREATE2) a CounterfactualWallet which is then swept for ERC20, ERC721 or Ether to a target address specifed.
@@ -26,7 +35,9 @@ The contract is then destroyed within the same transaction.
 
 An ERC20 transfer which usually costs 50k gas now costs 130k (:()
 
-Todo:
+![](./static/diagram.png)
+
+## Todo:
 
 - optimize (are we getting the benefits of the minimal proxy using create2 and the counterfactual pattern)
 - investigate create3
