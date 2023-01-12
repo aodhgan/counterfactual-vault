@@ -1,0 +1,94 @@
+import { HardhatUserConfig } from 'hardhat/config';
+
+const alchemyUrl = process.env.ALCHEMY_URL;
+const infuraApiKey = ""
+const mnemonic = '';
+
+
+const networks: HardhatUserConfig['networks'] = {
+    coverage: {
+        url: 'http://127.0.0.1:8555',
+        blockGasLimit: 200000000,
+        allowUnlimitedContractSize: true,
+    },
+    localhost: {
+        chainId: 1,
+        url: 'http://127.0.0.1:8545',
+        allowUnlimitedContractSize: true,
+    },
+};
+
+if (alchemyUrl && process.env.FORK_ENABLED && mnemonic) {
+    networks.hardhat = {
+        chainId: 1,
+        forking: {
+            url: alchemyUrl,
+        },
+        accounts: {
+            mnemonic,
+        },
+    };
+} else {
+    networks.hardhat = {
+        allowUnlimitedContractSize: true,
+    };
+}
+
+if (mnemonic) {
+    networks.xdai = {
+        chainId: 100,
+        url: 'https://rpc.xdaichain.com/',
+        accounts: {
+            mnemonic,
+        },
+    };
+    networks.poaSokol = {
+        chainId: 77,
+        url: 'https://sokol.poa.network',
+        accounts: {
+            mnemonic,
+        },
+    };
+    networks.matic = {
+        chainId: 137,
+        url: 'https://rpc-mainnet.maticvigil.com',
+        accounts: {
+            mnemonic,
+        },
+    };
+    networks.mumbai = {
+        chainId: 80001,
+        url: 'https://rpc-mumbai.maticvigil.com',
+        accounts: {
+            mnemonic,
+        },
+    };
+}
+
+if (infuraApiKey && mnemonic) {
+    console.log("here")
+    networks.kovan = {
+        url: `https://kovan.infura.io/v3/${infuraApiKey}`,
+        accounts: {
+            mnemonic,
+        },
+    };
+
+    networks.ropsten = {
+        url: `https://ropsten.infura.io/v3/${infuraApiKey}`,
+        accounts: {
+            mnemonic,
+        },
+    };
+
+    networks.goerli = {
+        url: `https://goerli.infura.io/v3/${infuraApiKey}`,
+        accounts: {
+            mnemonic,
+        },
+    };
+} else {
+    console.warn('No infura or hdwallet available for testnets');
+}
+
+export default networks;
