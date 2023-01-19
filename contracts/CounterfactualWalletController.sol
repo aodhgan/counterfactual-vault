@@ -13,7 +13,6 @@ import "./CounterfactualWallet.sol";
 /// @notice Counterfactually instantiates a wallet at an address unique to an ERC721 token.  The address for an ERC721 token can be computed and later
 /// plundered by transferring token balances to the ERC721 owner.
 contract CounterfactualWalletController is Ownable {
-    /// @notice The instance to which all proxies will point
     CounterfactualWallet public counterfactualWalletInstance;
 
     bytes32 internal immutable _counterfactualWalletBytecodeHash;
@@ -38,9 +37,12 @@ contract CounterfactualWalletController is Ownable {
     constructor() Ownable() {
         counterfactualWalletInstance = new CounterfactualWallet();
         counterfactualWalletInstance.initialize();
+
         _counterfactualWalletBytecode = MinimalProxyLibrary.minimalProxy(
             address(counterfactualWalletInstance)
         );
+        // _counterfactualWalletBytecode = type(CounterfactualWallet).creationCode;
+
         _counterfactualWalletBytecodeHash = keccak256(
             _counterfactualWalletBytecode
         );
@@ -63,7 +65,7 @@ contract CounterfactualWalletController is Ownable {
         );
 
         counterfactualWallet.sweep(erc20s, erc721s, to);
-        counterfactualWallet.destroy(to);
+        // counterfactualWallet.destroy(to);
 
         emit Sweep(msg.sender, tokenId, msg.sender);
     }
@@ -87,7 +89,7 @@ contract CounterfactualWalletController is Ownable {
         );
         (erc721, tokenId);
         bytes[] memory result = counterfactualWallet.executeCalls(calls);
-        counterfactualWallet.destroy(owner);
+        // counterfactualWallet.destroy(owner);
 
         emit Executed(erc721, tokenId, msg.sender);
 

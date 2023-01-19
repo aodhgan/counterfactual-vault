@@ -1,6 +1,6 @@
+/* eslint-disable */
 
-
-const chainName = (chainId) => {
+const chainName = (chainId: any) => {
     switch (chainId) {
         case 1:
             return 'Mainnet';
@@ -33,7 +33,7 @@ const chainName = (chainId) => {
     }
 };
 
-module.exports = async (hardhat) => {
+module.exports = async (hardhat: any) => {
     const { getNamedAccounts, deployments, getChainId, ethers } = hardhat;
     const { deploy } = deployments;
 
@@ -49,7 +49,7 @@ module.exports = async (hardhat) => {
     console.log(`Network: ${chainName(chainId)} (${isTestEnvironment ? 'local' : 'remote'})`);
     console.log(`Deployer: ${deployer}`);
 
-    console.log(`\nDeploying CounterFact Controller...`);
+    console.log(`\nDeploying CounterFactualWallet Controller...`);
     const controllerResult = await deploy('CounterfactualWalletController', {
         from: deployer,
     });

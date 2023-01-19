@@ -26,7 +26,11 @@ For example:
 1. Send 10 mintable ERC20 token above to this address https://goerli.etherscan.io/tx/0x64001e31b38cd4497008056fdb77eab4bd6efd328b0aea6920f3c12494f78068
 1. Sweep these tokens to another random address 0xB3925cC4446635D2E3AdfB050cDa950d720167a0 https://goerli.etherscan.io/tx/0x57826ccff214e1e8edcaf31457f5a579b03c1bbad5ccc2727b2d3b751a5d662e
  
+### Privacy
+This pattern does seem to introduce some level of unlinkability similar to that gained in a16z's sneaky auction https://a16zcrypto.com/hidden-in-plain-sight-a-sneaky-solidity-implementation-of-a-sealed-bid-auction/
 
+If the walletId's are random enough, then it is hard to index sufficiently so that you can identify a transaction sent to a related CFW address.
+This would be improved even further if the CFWController itself wasnt even deployed yet.
 
 ### Under the hood
 
@@ -38,11 +42,12 @@ An ERC20 transfer which usually costs 50k gas now costs 130k (:()
 ![](./static/diagram.png)
 
 ## Todo:
-
-- optimize (are we getting the benefits of the minimal proxy using create2 and the counterfactual pattern)
+- 
 - investigate create3
 - we need to specify an address to self destruct - what implications does this have
-
+- investigate indexing architecture
+    - using a top level factory pattern for CFWControllers -> use The Graph template 
+    - how to monitor for incoming transactions across for walletId's 0 to uint256.max
 ## About
 
 Inspired by PoolTogether's Lootbox (https://github.com/pooltogether/loot-box).

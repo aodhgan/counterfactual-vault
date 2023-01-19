@@ -4,14 +4,17 @@ import 'hardhat'
 import '@nomiclabs/hardhat-ethers'
 // End - Support direct Mocha run & debug
 
-import chai, {expect} from 'chai'
-import {before} from 'mocha'
-import {solidity} from 'ethereum-waffle'
-import {CounterfactualWalletController} from '../typechain-types'
-import {deployContract, signer} from './framework/contracts'
-import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers'
-import {ERC20PresetMinterPauser} from '../typechain-types/@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser'
-import {TransactionReceipt} from '@ethersproject/abstract-provider'
+import chai, { expect } from 'chai'
+import { before } from 'mocha'
+import { solidity } from 'ethereum-waffle'
+import { CounterfactualWalletController } from '../typechain-types'
+import { deployContract, signer } from './framework/contracts'
+import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { ERC20PresetMinterPauser } from '../typechain-types/@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser'
+import { TransactionReceipt } from '@ethersproject/abstract-provider'
+import { deployments, ethers } from 'hardhat'
+import { TransactionRequest } from '@ethersproject/providers'
+import { Contract } from 'ethers'
 // Wires up Waffle with Chai
 chai.use(solidity)
 
@@ -19,6 +22,11 @@ describe('LootBoxController', () => {
     before(async () => {
         admin = await signer(0)
         observer = await signer(1)
+
+
+
+        // console.log("gas to deploy CounterfactualWalletController", deployTx.ga)
+
     })
 
     beforeEach(async () => {
@@ -35,6 +43,17 @@ describe('LootBoxController', () => {
     })
 
     describe('sweeping', () => {
+        it('deployment gas ', async () => {
+            // get amount of gas it takes to deploy a CounterfactualWalletController
+            const factory = await ethers.getContractFactory("CounterfactualWalletController", observer)
+
+            // get deployment tx receipt
+            const deployTxReceipt: Contract = await factory.deploy()
+            const deployTx = await deployTxReceipt.deployTransaction.wait()
+            console.log("gas used to deploy CFWController:", deployTx.gasUsed.toString())
+        })
+
+
         it('can sweep', async () => {
             const calculatedAddress =
                 await counterfactualWalletController.computeAddress(1)
@@ -79,7 +98,7 @@ describe('LootBoxController', () => {
         it('cannot sweep', async () => {
             const calculatedAddress2 =
                 await counterfactualWalletController.computeAddress(2)
-            console.log({calculatedAddress2})
+            console.log({ calculatedAddress2 })
 
             // mint tokens to calculated address2
             const mintAmount = 7000
