@@ -10,7 +10,7 @@ import { solidity } from 'ethereum-waffle'
 import { CounterfactualWalletController } from '../typechain-types'
 import { deployContract, signer } from './framework/contracts'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { ERC20PresetMinterPauser } from '../typechain-types/@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser'
+import { ERC20PresetMinterPauser, ERC20PresetMinterPauserInterface } from '../typechain-types/@openzeppelin/contracts/token/ERC20/presets/ERC20PresetMinterPauser'
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { deployments, ethers } from 'hardhat'
 import { TransactionRequest } from '@ethersproject/providers'
@@ -113,6 +113,32 @@ describe('LootBoxController', () => {
                 mintAmount
             )
             expect(await exampleErc20.balanceOf(admin.address)).to.equal(0)
+
+        })
+    })
+
+    describe('execute call', () => {
+        it('owner can execute erc20::transfer call', async () => {
+
+            // this makes "sweep()" redundant
+
+            const TWO = 2
+            const calculatedAddress2 =
+                await counterfactualWalletController.computeAddress(TWO)
+            console.log({ calculatedAddress2 })
+
+            // mint tokens to calculated address2
+            const mintAmount = 7000
+            await exampleErc20.mint(calculatedAddress2, mintAmount)
+
+            await counterfactualWalletController.executeCalls(admin.address, TWO,
+                [{ to: exampleErc20.address, value: 0, data: exampleErc20.interface.encodeFunctionData("transfer", [observer.address, mintAmount]) }])
+
+            expect(await exampleErc20.balanceOf(calculatedAddress2)).to.equal(0)
+            expect(await exampleErc20.balanceOf(observer.address)).to.equal(
+                mintAmount
+            )
+
         })
     })
     let admin: SignerWithAddress

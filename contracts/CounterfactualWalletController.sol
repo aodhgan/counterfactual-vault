@@ -41,8 +41,6 @@ contract CounterfactualWalletController is Ownable {
         _counterfactualWalletBytecode = MinimalProxyLibrary.minimalProxy(
             address(counterfactualWalletInstance)
         );
-        // _counterfactualWalletBytecode = type(CounterfactualWallet).creationCode;
-
         _counterfactualWalletBytecodeHash = keccak256(
             _counterfactualWalletBytecode
         );
@@ -80,9 +78,7 @@ contract CounterfactualWalletController is Ownable {
         address erc721,
         uint256 tokenId,
         CounterfactualWallet.Call[] calldata calls
-    ) external returns (bytes[] memory) {
-        address payable owner = payable(IERC721(erc721).ownerOf(tokenId));
-        require(msg.sender == owner, "CFWController/only-owner");
+    ) external onlyOwner returns (bytes[] memory) {
         CounterfactualWallet counterfactualWallet = _createCFWallet(
             erc721,
             tokenId
