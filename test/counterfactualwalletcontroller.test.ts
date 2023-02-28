@@ -22,11 +22,6 @@ describe('LootBoxController', () => {
     before(async () => {
         admin = await signer(0)
         observer = await signer(1)
-
-
-
-        // console.log("gas to deploy CounterfactualWalletController", deployTx.ga)
-
     })
 
     beforeEach(async () => {
@@ -42,8 +37,9 @@ describe('LootBoxController', () => {
         console.log('deployed erc20 at ', exampleErc20.address)
     })
 
-    describe('sweeping', () => {
-        it('deployment gas ', async () => {
+
+    describe('deployment gas ', async () => {
+        it("displays gas used to deploy CFWController", async () => {
             // get amount of gas it takes to deploy a CounterfactualWalletController
             const factory = await ethers.getContractFactory("CounterfactualWalletController", observer)
 
@@ -52,70 +48,8 @@ describe('LootBoxController', () => {
             const deployTx = await deployTxReceipt.deployTransaction.wait()
             console.log("gas used to deploy CFWController:", deployTx.gasUsed.toString())
         })
-
-
-        it('can sweep', async () => {
-            const calculatedAddress =
-                await counterfactualWalletController.computeAddress(1)
-
-            const calculatedAddress2 =
-                await counterfactualWalletController.computeAddress(2)
-            // mint tokens to calculated address2
-            const mintAmount = 7000
-            await exampleErc20.mint(calculatedAddress2, mintAmount)
-
-            // sweep tokens from calculatedAddress2 to observer
-            const result = await counterfactualWalletController.sweep(
-                2,
-                admin.address,
-                [exampleErc20.address],
-                []
-            )
-            const receipt = await result.wait()
-            console.log('gas used', receipt.gasUsed.toString())
-            console.log(
-                'balance of calculatedAddress2 now ',
-                await exampleErc20.balanceOf(calculatedAddress2)
-            )
-            expect(await exampleErc20.balanceOf(calculatedAddress2)).to.equal(0)
-            expect(await exampleErc20.balanceOf(admin.address)).to.equal(
-                mintAmount
-            )
-        })
-        it('benchmark standard erc20 transfer', async () => {
-            const mintAmount = 100
-            await exampleErc20.mint(admin.address, mintAmount)
-            const result = await exampleErc20.transfer(
-                observer.address,
-                mintAmount
-            )
-            const receipt = await result.wait()
-            console.log('gas used', receipt.gasUsed.toString())
-        })
     })
 
-    describe('random cannot sweep', () => {
-        it('cannot sweep', async () => {
-            const calculatedAddress2 =
-                await counterfactualWalletController.computeAddress(2)
-            console.log({ calculatedAddress2 })
-
-            // mint tokens to calculated address2
-            const mintAmount = 7000
-            await exampleErc20.mint(calculatedAddress2, mintAmount)
-            // plunder tokens from calculatedAddress2 to observer
-            await expect(
-                counterfactualWalletController
-                    .connect(observer)
-                    .sweep(2, observer.address, [exampleErc20.address], [])
-            ).to.be.revertedWith('Ownable: caller is not the owner')
-            expect(await exampleErc20.balanceOf(calculatedAddress2)).to.equal(
-                mintAmount
-            )
-            expect(await exampleErc20.balanceOf(admin.address)).to.equal(0)
-
-        })
-    })
 
     describe('execute call', () => {
         it('owner can execute erc20::transfer call', async () => {

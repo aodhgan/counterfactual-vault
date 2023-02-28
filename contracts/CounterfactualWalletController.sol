@@ -47,27 +47,6 @@ contract CounterfactualWalletController is Ownable {
     }
 
     /// @notice Allows owner to transfer all given tokens in a counterfactual wallet to a destination address
-    /// @dev A counterfactual wallet contract will be counterfactually created, tokens transferred to the owner, then destroyed.
-    /// @param tokenId The ERC721 token id
-    /// @param erc20s An array of ERC20 tokens whose entire balance should be transferred
-    /// @param erc721s An array of structs defining ERC721 tokens that should be transferred
-    function sweep(
-        uint256 tokenId,
-        address payable to,
-        IERC20[] calldata erc20s,
-        CounterfactualWallet.WithdrawERC721[] calldata erc721s
-    ) external payable onlyOwner {
-        CounterfactualWallet counterfactualWallet = _createCFWallet(
-            msg.sender,
-            tokenId
-        );
-
-        counterfactualWallet.sweep(erc20s, erc721s, to);
-        // counterfactualWallet.destroy(to);
-
-        emit Sweep(msg.sender, tokenId, msg.sender);
-    }
-
     /// @notice Allows the owner of an ERC721 to execute abitrary calls on behalf of the associated counterfactual wallet.
     /// @dev The wallet will be counterfactually created, calls executed, then the contract destroyed.
     /// @param erc721 The ERC721 address
